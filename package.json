@@ -25,7 +25,6 @@
     "sync": "node scripts/sync-upstream.js",
     "check-update": "node scripts/check-update.js",
     "bump-version": "node scripts/bump-version.js",
-    "postinstall": "npm run rebuild:native",
     "rebuild:native": "electron-rebuild"
   },
   "devDependencies": {

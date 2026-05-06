@@ -113,10 +113,8 @@ module.exports = {
         return;
       }
 
-      // Remove forge's empty app dir (we replace it with app.asar)
-      if (fs.existsSync(buildPath)) {
-        fs.rmSync(buildPath, { recursive: true });
-      }
+      // Keep buildPath (app/) with package.json — forge needs it after this hook.
+      // Our app.asar goes alongside it in Resources/.
 
       const skip = new Set(["_asar"]); // _asar is working dir, already repacked into app.asar
       let copied = 0;

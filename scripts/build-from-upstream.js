@@ -156,15 +156,24 @@ function buildMac(platform) {
     updateAsarIntegrity(asarPath, infoPlist);
   }
 
-  // 5. Strip code signature
-  console.log("   [codesign] removing signature");
+  // 5. Strip original signature + quarantine
+  console.log("   [codesign] removing original signature");
   try { execSync(`codesign --remove-signature "${outApp}"`, { stdio: "pipe" }); } catch {}
   try { execSync(`xattr -rd com.apple.quarantine "${outApp}"`, { stdio: "pipe" }); } catch {}
 
   // 6. Replace codex CLI
   replaceCodex(platform, resourcesDir, "codex");
 
-  // 5. Create DMG
+  // 7. Ad-hoc re-sign (prevents "damaged app" Gatekeeper error)
+  console.log("   [codesign] ad-hoc signing");
+  try {
+    execSync(`codesign --sign - --force --deep "${outApp}"`, { stdio: "pipe" });
+    console.log("   [ok] ad-hoc signed");
+  } catch (e) {
+    console.log(`   [!] ad-hoc sign failed: ${e.message}`);
+  }
+
+  // 8. Create DMG
   const version = getVersion(asarDir);
   const dmgName = `Codex-${platform}-${version}.dmg`;
   const dmgPath = path.join(OUT_DIR, dmgName);
